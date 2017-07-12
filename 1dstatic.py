@@ -1,13 +1,25 @@
 import numpy as np
 import scipy.linalg as scipy
 
+####################################################
+#init variables
 lmax = 30.0
 lmin = -30.0
 ngrid = 1024
 nwave = 3
-
 w = 0.5
+
+diff = (lmax - lmin)/ngrid
+
+#init position matrix and fock matrix
+X = np.zeros(ngrid,dtype=np.complex64)
+Fock = np.zeros((ngrid,ngrid),dtype=np.complex64)
+
+####################################################
+#important functins defined here
 def potent(pos):
+   #return potential
+
    # if (abs(pos) <= 5):
    #     return 0.0
    # return 1000000.0  # square well
@@ -15,23 +27,24 @@ def potent(pos):
 
     return w*pos**2
 
-diff = (lmax - lmin)/ngrid
+####################################################
+#main code goes here
 
-X = np.zeros(ngrid,dtype=np.complex64)
-H = np.zeros((ngrid,ngrid),dtype=np.complex64)
-for pos in range(ngrid):
-    X[pos] = lmin + pos*diff + 0j
-    H[pos][pos] = potent(X[pos])  + 0j
+for igrid in range(ngrid):
+    
+    X[igrid] = lmin + pos*diff + 0j
+    H[igrid[igrid] = potent(X[igrid])  + 0j
 
-for i in range(ngrid):
-    for j in range(ngrid):
-        if(i==j): 
-            H[i,j] +=  1.0/diff**2 + 0j
+for igrid in range(ngrid):
+    for igrid2 in range(ngrid):
+        if(igrid==igrid2): 
+            H[igrid,igrid2] +=  1.0/diff**2 + 0j
             
-        if(abs(i-j)==1):
-            H[i,j] += - 0.5/diff**2 + 0j
+        if(abs(igrid-igrid2)==1):
+            H[igrid,igrid2] += - 0.5/diff**2 + 0j
 
-E,psi = np.linalg.eigh(H)
+#calculate eigen values and vectors for fock matrix
+E,psi = np.linalg.eigh(fock)
 
 
 idx = E.argsort()[::1]   
