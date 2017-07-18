@@ -1,4 +1,4 @@
-import numpy as np:
+import numpy as np
 import scipy.linalg as scipy
 
 ####################################################
@@ -8,7 +8,6 @@ lmin = -30.0
 ngrid = 1024
 nwave = 3
 w = 0.5
-
 
 diff = (lmax - lmin)/ngrid
 
