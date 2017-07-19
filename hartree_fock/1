@@ -1,7 +1,6 @@
 #hartree fock master control file
 
 from basis import basis as Basis
-Basis = Basis()
 
 ###############################################
 #important functions go here
@@ -62,8 +61,7 @@ def addAtom():
 #main code goes here
 
 #get user input
-#atomicNumbers, coord, charges = ui()
-atomicNumbers, coord, charges = [1],[[0,0,0]],[0]
+atomicNumbers, coord, charges = ui()
 
 basis = Basis.constructBasis(atomicNumbers, coord)
 
