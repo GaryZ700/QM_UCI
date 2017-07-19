@@ -1,11 +1,12 @@
 #hartree fock master control file
 
+import basis
+
 ###############################################
 #important functions go here
 ###############################################
 def ui():
 #gets atom charges and coordinates from user
-
     atomicNumbers = []
     coord = []
     charges = []
@@ -46,9 +47,10 @@ def addAtom():
     
     charge = int(raw_input())
 
-    print("Enter coordinates of atom in x,y,z format:")
+    print("Enter coordinates of atom in x y z format:")
     
     testCoord = raw_input()
+
     for pos in testCoord:
 	if(pos != " "):
             coord.append(pos)
@@ -61,10 +63,14 @@ def addAtom():
 #get user input
 atomicNumbers, coord, charges = ui()
 
+basis = constructBasis(atomicNumbers, coord)
+
+
+
 print(atomicNumbers)
 print(coord)
 print(charges)
-
+print(basis)
 #nuclearRepulsion = calcNuclearRepulsion(atomicNumbers, coord)
 #basis = buildBasis(atomicNumbers, coord)
 #S = buildOverlap(bais)
