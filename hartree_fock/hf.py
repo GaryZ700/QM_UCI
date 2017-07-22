@@ -63,9 +63,10 @@ def addAtom():
 
 #get user input
 #atomicNumbers, coord, charges = ui()
-atomicNumbers, coord, charges = [1],[[0,0,0]],[0]
+atomicNumbers, coord, charges = [1,1,1],[[0,0,1],[0,0,-1],[0,0,3]],[0,0]
 
 basis = Basis.constructBasis(atomicNumbers, coord)
+S = Basis.overlap(basis)
 
 
 
@@ -73,6 +74,7 @@ print(atomicNumbers)
 print(coord)
 print(charges)
 print(basis)
+print(S)
 #nuclearRepulsion = calcNuclearRepulsion(atomicNumbers, coord)
 #basis = buildBasis(atomicNumbers, coord)
 #S = buildOverlap(bais)

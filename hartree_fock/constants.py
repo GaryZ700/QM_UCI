@@ -2,9 +2,9 @@
 
 #contains alpha values for various atoms
 
-alpha = [
+alpha = {
 	
-    [18.7311370, 2.8253937, 0.6401217]
+        1:[18.7311370, 2.8253937, 0.6401217]
 
 
-]
+    }
