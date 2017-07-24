@@ -25,7 +25,7 @@ def potent(pos):
    # return 1000000.0  # square well
     #return 150*np.sin(pos*w*2*0.5)
 
-    return w*pos**2
+    #return w*pos**2
 
 ####################################################
 #main code goes here
