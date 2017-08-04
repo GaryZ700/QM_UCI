@@ -33,10 +33,8 @@ class Basis:
 		#for each atom 
 		for atom in range(len(Z)):		
 			#for each guassian used to represent the atom
-			for gaussian in range(len(a)):
-				#append all gaussian data to lists
-				A[atom].append(a[Z[atom]-1])
-				CC[atom].append(cc[Z[atom]-1])
+			A.append(a[Z[atom]-1])
+			CC.append(cc[Z[atom]-1])
 		
 		return { "alphas":A, "coeffs": CC, "mus":R }
 				
@@ -51,8 +49,13 @@ class Basis:
 		mu1 = basis["mus"][b1][0]
 		mu2 = basis["mus"][b2][0]
 		
+		print(a1)
+		print(a2)
+		print(mu1)
+		print(mu2)
+		
 		#new guassian alpha
-		A = a + b
+		A = a1 + a2
 		
 		#find constant for new guassian
 		#divide equation for constant into three parts
@@ -66,8 +69,13 @@ class Basis:
 		
 		q = (a1*a2)/A
 		Q = abs(mu1 - mu2)**2
+		
+		print("OVERLAP")	
+		print(math.exp(-q*Q))
 
-		return math.exp(-qQ)
+                c = math.pi / (A**(3/2))
+
+		return math.exp(-q*Q)
 		
 ################################
 	def buildOverlap(self, basis):
@@ -93,7 +101,7 @@ class Basis:
 				
 				for p1 in range(len(basis["alphas"][b1])):
 					for p2 in range(len(basis["alphas"][b2])):
-						S[b1][b2] += basis["coeffs"][b1][p1]*basis["coeffs"][b2][p2]  * self.overlap(basis, b1, b2, p1, p2 )
+						S[b1][b2] += basis["coeffs"][b1][p1]*basis["coeffs"][b2][p2] * self.overlap(basis, b1, b2, p1, p2 )
 
 		
 		return S				
