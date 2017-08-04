@@ -13,7 +13,7 @@ class Basis:
 		"alphas":[[0.168856, 0.623913, 3.42525]],
 		
 		#contraction coeffs for each guassian
-		"coeffs":[[0.444635, 0.535328, 0.154329]]
+		"coeffs":[[0.444635, 0.535328, .020037]]
 
 }
 #################################
@@ -78,33 +78,3 @@ class Basis:
 		return math.exp(-q*Q)
 		
 ################################
-	def buildOverlap(self, basis):
-		#builds overlap matrix S
-
-		#number that represents the number of basis functions being used for the system
-		basisNumber = len(basis["alphas"])
-
-		#init empty overlap matrix
-		S = np.zeros([basisNumber, basisNumber])
-		
-		#iterate over atom basis twice
-		for b1 in range(basisNumber):
-			for b2 in range(basisNumber):
-				
-				print(b1)
-				print(b2)
-				print("-------------")
-				
-				#iterate over primatives used in basis twice
-				
-				print(basis["coeffs"])
-				
-				for p1 in range(len(basis["alphas"][b1])):
-					for p2 in range(len(basis["alphas"][b2])):
-						S[b1][b2] += basis["coeffs"][b1][p1]*basis["coeffs"][b2][p2] * self.overlap(basis, b1, b2, p1, p2 )
-
-		
-		return S				
-		
-
-

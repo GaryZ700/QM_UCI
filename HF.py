@@ -14,17 +14,14 @@ Integrals = Integrals()
 #contains information user provided information about the  system
 system = {
 	#nuclear coordinates
-	"R":[[0.0,0.0,0.0], [1.4,0.0,0.0]],
+	"R":[[0.0,0.0,0.0], [5.0,0.0,0.0]],
 
 	#atomic number
-	"Z":[1.0,1.0],
+	"Z":[1,1],
 	
 	#number of electron
 	"N":2.0,
 }
-
-#overlap matrix
-S = []
 
 #Core hamiltonian
 H = []
@@ -40,7 +37,7 @@ basis = Basis.buildBasis(system["Z"], system["R"])
 
 ##################################
 #main code goes here
-S = Basis.buildOverlap(basis)
+S = Integrals.buildOverlap(basis)
 T = Integrals.buildKE(basis)
 
 print(S)

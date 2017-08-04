@@ -25,13 +25,15 @@ class Integrals:
 		
 		#calculate integral values
 		C["p"] = C["a1"] + C["a2"]
-		C["P"] = C["a1"]*C["a2"]		
+		C["P"] = C["a1"]*C["a2"]
+		C["Pp"] = ( C["a1"]*C["mu1"] + C["a2"]*C["mu2"] ) / C["p"]
 	
 		C["q"] = C["P"]/C["p"]
 		C["Q"] = abs(C["mu1"] - C["mu2"])**2
 
 		C["c12"] = C["c1"] * C["c2"]
 		
+		C["overlap"] = math.exp(-C["q"]*C["Q"])		
 
 		return C
 
@@ -57,6 +59,79 @@ class Integrals:
 						C = self.constants(basis, b1, b2, p1, p2)						
 						
 						#Calculate integral
-						T[b1][b2] += C["c12"] * C["Q"] * ( 3 - (2*C["q"]) ) * ( (math.pi/C["p"])**(3/2) ) * math.exp(-C["q"]*C["Q"])
+						c1 = 3 - (2*C["q"]*C["Q"])
+						c2 = (math.pi / C["p"]) ** (3/2) 		
+						T[b1][b2] += C["c12"] * C["q"] * c1 * c2  * C["overlap"]
+						#T[b1][b2] += 3 * C["a2"] * C["overlap"] * C["c12"]
+						#T[b1][b2] += -2 * ( ((C["Pp"] - C["mu2"])**2) + (1/(2*C["p"])) ) * C["overlap"] * C["c12"]
+					#	term1 = C["a2"] * C["overlap"]
+					#	term2 =  -2 * C["a2"]**2 * C["overlap"]
+					#	term3 = -0.5 * C["overlap"]
+						
+					#	T[b1][b2] += term1 + term2 + term3
+		return T
+	
+#################################
+	def buildOverlap(self, basis):
+		#builds overlap matrix S
+
+		#number that represents the number of basis functions being used for the system
+		basisNumber = len(basis["alphas"])
+
+		#init empty overlap matrix
+		S = np.zeros([basisNumber, basisNumber])
 		
-		return T				
+		#iterate over atom basis twice
+		for b1 in range(basisNumber):
+			for b2 in range(basisNumber):
+				
+				print(b1)
+				print(b2)
+				print("-------------")
+				
+				#iterate over primatives used in basis twice
+				
+				print(basis["coeffs"])
+				
+				for p1 in range(len(basis["alphas"][b1])):
+					for p2 in range(len(basis["alphas"][b2])):
+						
+						
+						#get integral constants
+						C = self.constants(basis, b1, b2, p1, p2)							
+						S[b1][b2] += C["c12"] * C["overlap"]
+
+		
+		return S				
+
+	def buildOverlap(self, basis):
+		#builds overlap matrix S
+
+		#number that represents the number of basis functions being used for the system
+		basisNumber = len(basis["alphas"])
+
+		#init empty overlap matrix
+		S = np.zeros([basisNumber, basisNumber])
+		
+		#iterate over atom basis twice
+		for b1 in range(basisNumber):
+			for b2 in range(basisNumber):
+				
+				print(b1)
+				print(b2)
+				print("-------------")
+				
+				#iterate over primatives used in basis twice
+				
+				print(basis["coeffs"])
+				
+				for p1 in range(len(basis["alphas"][b1])):
+					for p2 in range(len(basis["alphas"][b2])):
+						
+						
+						#get integral constants
+						C = self.constants(basis, b1, b2, p1, p2)							
+						S[b1][b2] += C["c12"] * C["overlap"]
+
+		
+		return S				
