@@ -8,35 +8,46 @@ class Basis:
 	
 	#guassian constants used for each atom, Atomic number - 1 = index coresspoding to that atom
 	constant = {
-		
+	
+                #Hydrogen uses STO-3G from Basis Set Exchange
+                #https://bse.pnl.gov/bse/portal
+
 		#guassian alpha values
-		"alphas":[[0.168856, 0.623913, 3.42525]],
+		"alphas":[[0.15432897,0.15432897,0.15432897]],
 		
 		#contraction coeffs for each guassian
-		"coeffs":[[0.444635, 0.535328, .020037]]
+		"coeffs":[[0.15432897,0.15432897,0.15432897]]
 
 }
 #################################
 	def buildBasis(self, Z, R):
 		#builds basis based on atomic number and coordinates
 		
-		#init alphas and contraction coeffs holders
+		#init alphas, contraction coeffs, and normalization constants holders
 		A = []
-		CC = []
-		
+    		CC = []
+                N = []
+
 		#init alphas and contraction coeffs
 		a = self.constant["alphas"]
-		cc = self.constant["coeffs"]		
-		
-		print(Z[0])		
-	
+		cc = self.constant["coeffs"]			
+	    	
 		#for each atom 
 		for atom in range(len(Z)):		
 			#for each guassian used to represent the atom
 			A.append(a[Z[atom]-1])
 			CC.append(cc[Z[atom]-1])
-		
-		return { "alphas":A, "coeffs": CC, "mus":R }
+
+                        #https://youtu.be/RHkWFlIhNHo?t=2m4s
+                        N.append( [ ((2*a)/math.pi) ** (0.75) for a in A[atom] ] ) 
+
+
+		#list of guassian data, alphas,
+                #contraction coeffs
+                #r: positions
+                #N: normalization value
+                #to access data, pass string of requsted value, and then internal atom number
+                return { "alphas":A, "coeffs": CC, "r":R, "N":N }
 				
 ################################
 	def overlap(self, basis, b1, b2, p1, p2):
