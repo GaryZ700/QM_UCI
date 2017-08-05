@@ -1,0 +1,15 @@
+H = Hamiltonian
+Ra, ri = position vectors
+
+r = electron positions, i,j,k
+R = nucli positions, A,B,C
+
+r_iA = |r_i - R_A|
+
+H  = M_A = ratio of nueculs mass to electron mass
+Z_a = atomic number of nucleus A
+
+orbital = wave function for single particle
+molecular orbital = wave func of elec in molecule
+spatial orbital = function of position vector r, describes probabillity of finding electron in a certain region
+
