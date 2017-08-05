@@ -19,23 +19,45 @@ class Integrals:
 		C["a1"] = basis["alphas"][b1][p1]
 		C["a2"] = basis["alphas"][b2][p2]
 
-		C["mu1"] = basis["mus"][b1]
-		C["mu2"] = basis["mus"][b2]
+                #center of guassians
+		C["r1"] = basis["r"][b1]
+		C["r2"] = basis["r"][b2]
 
+                #normalization of each guassians
+                C["N1"] = basis["N"][b1][p1]
+                C["N2"] = basis["N"][b2][p2]
+
+                #guassian contraction coeffs
 		C["c1"] = basis["coeffs"][b1][p1]
 		C["c2"] = basis["coeffs"][b2][p2]
 		
-		#calculate integral values
+		#calculate overlap values
+                #https://youtu.be/I27vnSDtyiI?t=3m58s
+                #https://youtu.be/I27vnSDtyiI?t=7m36s
 		C["p"] = C["a1"] + C["a2"]
-		C["P"] = C["a1"]*C["a2"]
-	#	C["Pp"] = ( C["a1"]*C["mu1"] + C["a2"]*C["mu2"] ) / C["p"]
+                C["P"] = [ (C["a1"] * C["r1"][dim] + C["a2"] * C["r2"][dim] ) / C["p"] for dim in range(3) ]
+                C["m"] = C["a1"]*C["a2"]
 	
-		C["q"] = C["P"]/C["p"]
-		C["Q"] = abs(C["mu1"][0] - C["mu2"][0])**2
+                C["q"] = C["m"]/C["p"]
+		C["Q"] = [ (C["r1"][dim] - C["r2"][dim])**2 for dim in range(3) ]
+	
+                C["overlap"] = 1
 
-		C["c12"] = C["c1"] * C["c2"]
-		
-		C["overlap"] = math.exp(-C["q"]*C["Q"])		
+                for dim in range(3):
+                    C["overlap"] *= math.exp(-C["q"]*C["Q"][dim])#[ math.exp(-C["q"]*C["Q"][dim]) for dim in range(3) ] 
+
+                #calculate 3D analytical integral
+                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3
+               
+                print("-----------")
+                print(C["overlap"])
+
+                #calculate product of contraction coeffs and normalization constants
+                C["c12"] = C["c1"] * C["c2"]
+                C["N12"] = C["N1"] * C["N2"]
+
+                print("GGGGGGGGGGGGG")
+                print(C["overlap"])
 
 		return C
 
@@ -59,18 +81,7 @@ class Integrals:
 						
 						#get integral constants
 						C = self.constants(basis, b1, b2, p1, p2)						
-						
-						#Calculate integral
-						c1 = 3 - (2*C["q"]*C["Q"])
-						c2 = (math.pi / C["p"]) ** (3/2) 		
-						T[b1][b2] += C["c12"] * C["q"] * c1 * c2  * C["overlap"]
-						#T[b1][b2] += 3 * C["a2"] * C["overlap"] * C["c12"]
-						#T[b1][b2] += -2 * ( ((C["Pp"] - C["mu2"])**2) + (1/(2*C["p"])) ) * C["overlap"] * C["c12"]
-					#	term1 = C["a2"] * C["overlap"]
-					#	term2 =  -2 * C["a2"]**2 * C["overlap"]
-					#	term3 = -0.5 * C["overlap"]
-						
-					#	T[b1][b2] += term1 + term2 + term3
+		                                				
 		return T
 	
 #################################
@@ -101,9 +112,9 @@ class Integrals:
 						
 						#get integral constants
 						C = self.constants(basis, b1, b2, p1, p2)							
-						S[b1][b2] += C["c12"] * C["overlap"]
+						#3D overlap times integral portion times normalization constants
+                                                S[b1][b2] += C["overlap"] * C["integrand"] * C["N12"] * C["c12"] 
 
-		
 		return S				
 
 #################################
