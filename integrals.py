@@ -1,5 +1,5 @@
 #integral calculator for python implementation of the Hartree-Fock Method
-#referece material refers to textbook "Modern Quantom Chemistry Introduction to Advanced Electronic Structure Theory" by 
+#referece material: "Modern Quantom Chemistry Introduction to Advanced Electronic Structure Theory" by 
 
 import numpy as np
 import math
@@ -62,6 +62,26 @@ class Integrals:
 		return C
 
 #################################
+        def boys(self, n, x):
+            #n = order, x = position
+            #implementation of the boy's function
+            #https://youtu.be/N7A_o0TL_ho?t=1m56s 
+            
+            #if gamma function goes to inf
+            if( x <= 0.0):
+                
+                n = (2*n) + 1.0
+        
+                return 1.0 / n
+        
+            else:
+                
+                n = n + 0.5
+                xP = x ** n
+                
+                return (advMath.gamma(n) * advMath.gammainc(x, n)) / (2.0*xP)
+        
+#################################
 	def buildKE(self, basis):
 		#builds KE matrix T
 
@@ -80,7 +100,18 @@ class Integrals:
 					for p2 in range(len(basis["alphas"][b2])):
 						
 						#get integral constants
-						C = self.constants(basis, b1, b2, p1, p2)						
+						C = self.constants(basis, b1, b2, p1, p2)
+                                                
+                                                #https://youtu.be/W6zfFHE5zIE?t=9m27s
+                                                term1 = 3 * C["overlap"] * C["a2"] * C["c12"]
+                                                
+                                                d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1/(2*C["p"])) for dim in range(3) ]
+                                                
+                                                term2 = [ -2*(C["a2"]**2) * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
+                        
+                                                T[b1][b2] += term1 
+                                                for dim in range(3):
+                                                    T[b1][b2] += term2[dim]
 		                                				
 		return T
 	
@@ -118,43 +149,34 @@ class Integrals:
 		return S				
 
 #################################
-	def buildNuclearAttraction(self, basis, system):
-		#builds overlap matrix S
-		#number that represents the number of basis functions being used for the system
-		basisNumber = len(basis["alphas"])
-
-		#init empty overlap matrix
-		V = np.zeros([basisNumber, basisNumber])
-		
-		#iterate over atom basis twice
-		for b1 in range(basisNumber):
-			for b2 in range(basisNumber):
-				
-				#iterate over primatives used in basis twice	
-				for atom in range(len(system["Z"])):
-					for p1 in range(len(basis["alphas"][b1])):
-						for p2 in range(len(basis["alphas"][b2])):
-	
-							#get integral constants
-							C = self.constants(basis, b1, b2, p1, p2)						
-							t = C["q"]*C["Q"]
-							
-							P = [ ((C["a1"]*C["mu1"][x] + C["a2"]*C["mu2"][x])/C["p"]) for x in range(3)]
-							
-																			     
-							 
-							RPA2 = sum((np.asarray(system["R"][atom]) - np.asarray(P))) * C["p"]
-			
-							term1 = (2*math.pi)/C["p"] 
-							if(RPA2 == 0):
-								boys = 0
-							else:
-								print(RPA2)
-								boys = (advMath.gamma(0.5) * advMath.gammainc(0, 0.5)) / (2 * (RPA2**(0.5)))
-								print("GGGGGGGGG")
-								print(advMath.gammainc(RPA2,0.5))	
-					
-							V[b1][b2] = -system["Z"][atom] * term1 * boys * C["c12"]											
-	
-			
-		return V
+        def buildNuclearAttraction(self, basis, system):
+                #builds coulomb matrix for couloumb force between each nucli and electron
+                #https://youtu.be/N7A_o0TL_ho?t=3m9s
+                
+                #number that represents the number of basis functions being used for the system
+                basisNumber = len(basis["alphas"])
+        
+                #init empty overlap matrix
+                V = np.zeros([basisNumber, basisNumber])
+        
+                #loop over all nucli in system
+                for nucli in system["Z"]:
+        
+                    #loop over all orbital baisis functions twice
+                    for b1 in range(basisNumber):
+                        for b2 in range(basisNumber):
+                            
+                            #loop over all primative guassians in basis twice
+                            for p1 in range(len(basis["alphas"][b1])):
+                                for p2 in range(len(basis["alphas"][b2])):
+        
+                                    #init integral constants
+                                    C = self.constants(basis, b1, b2, p1, p2)
+                                   
+                                    RPA2 = [ ((system["Z"][x] - C["P"][x]) ** 2) for x in range(len(system["Z"])) ] 
+                                    RPA2 = sum(RPA2) * C["p"]
+        
+                                    #calculate coulomb nuclear attraction
+                                    V[b1][b2] += -2.0 * nucli * self.boys(0, RPA2) * C["N12"] * C["c12"]   
+        
+                return V

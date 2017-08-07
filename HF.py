@@ -14,7 +14,7 @@ Integrals = Integrals()
 #contains information user provided information about the  system
 system = {
 	#nuclear coordinates
-        "R":[[2.0,3.0,2.0], [1.0,0.0,0.0]],
+        "R":[[2.0,3.0,2.0], [1.0,2.0,0.0]],
 
 	#atomic number
 	"Z":[1,1],
@@ -50,8 +50,9 @@ basis = Basis.buildBasis(system["Z"], system["R"])
 S = Integrals.buildOverlap(basis)
 
 #electron KE
-#T = Integrals.buildKE(basis)
+T = Integrals.buildKE(basis)
 
+#nuclear electron coloumb attraction 
+V = Integrals.buildNuclearAttraction(basis, system)
 
-print(S)
-#print(T)
+print(V)
