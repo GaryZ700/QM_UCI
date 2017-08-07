@@ -1,0 +1,8 @@
+$scfmo    scfconv=7   format(4d20.14)                                           
+# SCF total energy is       -1.0491708961 a.u.
+#
+     1  a      eigenvalue=-.46647552701435D+00   nsaos=2                        
+0.58464984501904D+000.58464984501903D+00
+     2  a      eigenvalue=0.42092655954098D+00   nsaos=2                        
+0.96473487905065D+00-.96473487905065D+00
+$end
