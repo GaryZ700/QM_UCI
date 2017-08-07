@@ -41,13 +41,13 @@ class Integrals:
                 C["q"] = C["m"]/C["p"]
 		C["Q"] = [ (C["r1"][dim] - C["r2"][dim])**2 for dim in range(3) ]
 	
-                C["overlap"] = 1
+                C["overlap"] = 1.0
 
                 for dim in range(3):
                     C["overlap"] *= math.exp(-C["q"]*C["Q"][dim])#[ math.exp(-C["q"]*C["Q"][dim]) for dim in range(3) ] 
 
                 #calculate 3D analytical integral
-                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3
+                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3.0
                
                 print("-----------")
                 print(C["overlap"])
@@ -103,10 +103,11 @@ class Integrals:
 						C = self.constants(basis, b1, b2, p1, p2)
                                                 
                                                 #https://youtu.be/W6zfFHE5zIE?t=9m27s
-                                                term1 = 3 * C["overlap"] * C["a2"] * C["c12"]
+                                                term1 = 3.0 * C["overlap"] * C["a2"] * C["c12"]
                                                 
-                                                d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1/(2*C["p"])) for dim in range(3) ]
-                                                
+                                                d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1.0/(2.0*C["p"])) for dim in range(3) ]
+					#	a2 = -2.0 * (C["a2"]**2))                        
+
                                                 term2 = [ -2*(C["a2"]**2) * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
                         
                                                 T[b1][b2] += term1 

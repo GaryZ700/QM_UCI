@@ -16,13 +16,13 @@ SCF = SCF()
 #contains information user provided information about the  system
 system = {
 	#nuclear coordinates
-	"R":[[0.0,0.0,0.0], [0.0,0.0,2.0]],
+	"R":[[0.0,0.0,-1.0], [0.0,0.0,1.0]],
 
 	#atomic number
 	"Z":[1,1],
 	
 	#number of electron
-	"N":2.0,
+	"N":[2.0]
 }
 
 #basis set 
