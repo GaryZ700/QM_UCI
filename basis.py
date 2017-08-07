@@ -48,7 +48,8 @@ class Basis:
 				CC.append(cc[Z[atom]-1][basis])
 				r.append(R[atom])
 
-		
+				print("##############33")
+				print(A)	
                	#https://youtu.be/RHkWFlIhNHo?t=2m4s
 		for primative in range(len(A)):
 			N.append( [ ((2*alpha)/math.pi) ** (0.75) for alpha in A[primative] ] )

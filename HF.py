@@ -27,6 +27,7 @@ system = {
 
 #basis set 
 basis = Basis.buildBasis(system["Z"], system["R"])
+print(basis)
 
 #scf energy loop threshold
 Ediff = 1.0 * (10.0**(-6))
@@ -40,29 +41,29 @@ maxCycle = 10
 #init main operators for first run
 
 #overlap
-S = Integrals.buildOverlap(basis)
+#S = Integrals.buildOverlap(basis)
 
 #electron KE
 T = Integrals.buildKE(basis)
 
 #nuclear electron coloumb attraction 
-Vext = Integrals.buildNuclearAttraction(basis, system)
+#Vext = Integrals.buildNuclearAttraction(basis, system)
 
 #electron electron repulsion matrix
-G = Integrals.buildElectronRepulsion(basis)
+#G = Integrals.buildElectronRepulsion(basis)
 
-print(G)
-print("---------")
-print(Vext)
+#print(G)
+#print("---------")
+#print(Vext)
 
 print("---------")
 print(T)
 
-print("---------")
-print(S)
+#print("---------")
+#print(S)
 #number of basis functions
 basisNumber = len(basis["alphas"])
-
+print(basis)
 #init core hamiltonian 
 #KE operator plus Nuclear attraction operator
 HCore = T + Vext

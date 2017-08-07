@@ -49,15 +49,9 @@ class Integrals:
                 #calculate 3D analytical integral
                 C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3.0
                
-                print("-----------")
-                print(C["overlap"])
-
                 #calculate product of contraction coeffs and normalization constants
                 C["c12"] = C["c1"] * C["c2"]
                 C["N12"] = C["N1"] * C["N2"]
-
-                print("GGGGGGGGGGGGG")
-                print(C["overlap"])
 
 		return C
 
@@ -88,13 +82,16 @@ class Integrals:
 		#number that represents the number of basis functions being used for the system
 		basisNumber = len(basis["alphas"])
 
+#lpha*g1.x0 + g2.alpha*g2.x0)/p;
+			
 		#init empty overlap matrix
 		T  = np.zeros([basisNumber, basisNumber])
-		
+		test  = [ [x for x in range(basisNumber)] for y in range(basisNumber) ]
+
 		#iterate over atom basis twice
 		for b1 in range(basisNumber):
 			for b2 in range(basisNumber):
-				
+				test[b1][b2] = [len(basis["alphas"][b1]), len(basis["alphas"][b2])]
 				#iterate over primatives used in basis twice
 				for p1 in range(len(basis["alphas"][b1])):
 					for p2 in range(len(basis["alphas"][b2])):
@@ -102,18 +99,22 @@ class Integrals:
 						#get integral constants
 						C = self.constants(basis, b1, b2, p1, p2)
                                                 
+
+						#https://youtu.be/RHkWFlIhNHo?t=2m4s
                                                 #https://youtu.be/W6zfFHE5zIE?t=9m27s
                                                 term1 = 3.0 * C["overlap"] * C["a2"] * C["c12"]
                                                 
                                                 d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1.0/(2.0*C["p"])) for dim in range(3) ]
-					#	a2 = -2.0 * (C["a2"]**2))                        
+					        a2 = -2.0 * (C["a2"]**2)             
 
-                                                term2 = [ -2*(C["a2"]**2) * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
+                                                term2 = [ a2 * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
                         
                                                 T[b1][b2] += term1 
                                                 for dim in range(3):
                                                     T[b1][b2] += term2[dim]
-		                                				
+
+						    
+		print(test)                                				
 		return T
 	
 #################################
