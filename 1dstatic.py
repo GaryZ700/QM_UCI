@@ -9,11 +9,16 @@ ngrid = 1024
 nwave = 3
 w = 0.5
 
+sigma = 0.5
+
 diff = (lmax - lmin)/ngrid
 
 #init position matrix and fock matrix
 X = np.zeros(ngrid,dtype=np.complex64)
 fock = np.zeros((ngrid,ngrid),dtype=np.complex64)
+
+print(fock)
+print(X)
 
 ####################################################
 #important functins defined here
@@ -25,7 +30,10 @@ def potent(pos):
    # return 1000000.0  # square well
     #return 150*np.sin(pos*w*2*0.5)
 
-    #return w*pos**2
+   #return w*pos**2
+    
+    
+    return alpha * math.exp(-(pos-mu)/(2*sigma**2))
 
 ####################################################
 #main code goes here
@@ -56,6 +64,8 @@ eValues,eVectors = np.linalg.eigh(fock)
 idx = eValues.argsort()[::1]   
 eValues = eValues[idx]
 eVectors = eVectors[:,idx]
+
+print(fock)
 
 #open output files
 f = open("energy_eigen_val","w")

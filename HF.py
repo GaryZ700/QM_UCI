@@ -37,8 +37,24 @@ basis = Basis.buildBasis(system["Z"], system["R"])
 
 ##################################
 #main code goes here
+
+#init main operators for first run
+
+#nuclear nuclear repulsion
+#Vnn = Integrals.buildNucNucRep(system)
+
+#nuclear electron attraction
+#Vne = Integrals.buildNucERep()
+
+#overlap
 S = Integrals.buildOverlap(basis)
+
+#electron KE
 T = Integrals.buildKE(basis)
+
+#nuclear electron coloumb attraction 
 V = Integrals.buildNuclearAttraction(basis, system)
 
-print(V)
+#electron electron repulsion matrix
+G = Integrals.buildElectronRepulsion(basis)
+

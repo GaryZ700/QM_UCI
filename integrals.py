@@ -1,5 +1,5 @@
 #integral calculator for python implementation of the Hartree-Fock Method
-#referece material refers to textbook "Modern Quantom Chemistry Introduction to Advanced Electronic Structure Theory" by 
+#referece material: "Modern Quantom Chemistry Introduction to Advanced Electronic Structure Theory" by 
 
 import numpy as np
 import math
@@ -19,26 +19,68 @@ class Integrals:
 		C["a1"] = basis["alphas"][b1][p1]
 		C["a2"] = basis["alphas"][b2][p2]
 
-		C["mu1"] = basis["mus"][b1]
-		C["mu2"] = basis["mus"][b2]
+                #center of guassians
+		C["r1"] = basis["r"][b1]
+		C["r2"] = basis["r"][b2]
 
+                #normalization of each guassians
+                C["N1"] = basis["N"][b1][p1]
+                C["N2"] = basis["N"][b2][p2]
+
+                #guassian contraction coeffs
 		C["c1"] = basis["coeffs"][b1][p1]
 		C["c2"] = basis["coeffs"][b2][p2]
 		
-		#calculate integral values
+		#calculate overlap values
+                #https://youtu.be/I27vnSDtyiI?t=3m58s
+                #https://youtu.be/I27vnSDtyiI?t=7m36s
 		C["p"] = C["a1"] + C["a2"]
-		C["P"] = C["a1"]*C["a2"]
-	#	C["Pp"] = ( C["a1"]*C["mu1"] + C["a2"]*C["mu2"] ) / C["p"]
+                C["P"] = [ (C["a1"] * C["r1"][dim] + C["a2"] * C["r2"][dim] ) / C["p"] for dim in range(3) ]
+                C["m"] = C["a1"]*C["a2"]
 	
-		C["q"] = C["P"]/C["p"]
-		C["Q"] = abs(C["mu1"][0] - C["mu2"][0])**2
+                C["q"] = C["m"]/C["p"]
+		C["Q"] = [ (C["r1"][dim] - C["r2"][dim])**2 for dim in range(3) ]
+	
+                C["overlap"] = 1
 
-		C["c12"] = C["c1"] * C["c2"]
-		
-		C["overlap"] = math.exp(-C["q"]*C["Q"])		
+                for dim in range(3):
+                    C["overlap"] *= math.exp(-C["q"]*C["Q"][dim])#[ math.exp(-C["q"]*C["Q"][dim]) for dim in range(3) ] 
+
+                #calculate 3D analytical integral
+                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3
+               
+                print("-----------")
+                print(C["overlap"])
+
+                #calculate product of contraction coeffs and normalization constants
+                C["c12"] = C["c1"] * C["c2"]
+                C["N12"] = C["N1"] * C["N2"]
+
+                print("GGGGGGGGGGGGG")
+                print(C["overlap"])
 
 		return C
 
+#################################
+        def boys(self, n, x):
+            #n = order, x = position
+            #implementation of the boy's function
+            #https://youtu.be/N7A_o0TL_ho?t=1m56s 
+            
+            #if gamma function goes to inf
+            if( x <= 0.0):
+                
+                n = (2*n) + 1.0
+        
+                return 1.0 / n
+        
+            else:
+                
+                n = n + 0.5
+                xP = x ** n
+                
+                return (advMath.gamma(n) * advMath.gammainc(x, n)) / (2.0*xP)
+        
 #################################
 	def buildKE(self, basis):
 		#builds KE matrix T
@@ -58,19 +100,19 @@ class Integrals:
 					for p2 in range(len(basis["alphas"][b2])):
 						
 						#get integral constants
-						C = self.constants(basis, b1, b2, p1, p2)						
-						
-						#Calculate integral
-						c1 = 3 - (2*C["q"]*C["Q"])
-						c2 = (math.pi / C["p"]) ** (3/2) 		
-						T[b1][b2] += C["c12"] * C["q"] * c1 * c2  * C["overlap"]
-						#T[b1][b2] += 3 * C["a2"] * C["overlap"] * C["c12"]
-						#T[b1][b2] += -2 * ( ((C["Pp"] - C["mu2"])**2) + (1/(2*C["p"])) ) * C["overlap"] * C["c12"]
-					#	term1 = C["a2"] * C["overlap"]
-					#	term2 =  -2 * C["a2"]**2 * C["overlap"]
-					#	term3 = -0.5 * C["overlap"]
-						
-					#	T[b1][b2] += term1 + term2 + term3
+						C = self.constants(basis, b1, b2, p1, p2)
+                                                
+                                                #https://youtu.be/W6zfFHE5zIE?t=9m27s
+                                                term1 = 3 * C["overlap"] * C["a2"] * C["c12"]
+                                                
+                                                d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1/(2*C["p"])) for dim in range(3) ]
+                                                
+                                                term2 = [ -2*(C["a2"]**2) * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
+                        
+                                                T[b1][b2] += term1 
+                                                for dim in range(3):
+                                                    T[b1][b2] += term2[dim]
+		                                				
 		return T
 	
 #################################
@@ -101,49 +143,96 @@ class Integrals:
 						
 						#get integral constants
 						C = self.constants(basis, b1, b2, p1, p2)							
-						S[b1][b2] += C["c12"] * C["overlap"]
+						#3D overlap times integral portion times normalization constants
+                                                S[b1][b2] += C["overlap"] * C["integrand"] * C["N12"] * C["c12"] 
 
-		
 		return S				
 
 #################################
-	def buildNuclearAttraction(self, basis, system):
-		#builds overlap matrix S
-		#number that represents the number of basis functions being used for the system
-		basisNumber = len(basis["alphas"])
+        def buildNuclearAttraction(self, basis, system):
+                #builds coulomb matrix for couloumb force between each nucli and electron
+                #https://youtu.be/N7A_o0TL_ho?t=3m9s
+                
+                #number that represents the number of basis functions being used for the system
+                basisNumber = len(basis["alphas"])
+        
+                #init empty overlap matrix
+                V = np.zeros([basisNumber, basisNumber])
+        
+                #loop over all nucli in system
+                for nucli in system["Z"]:
+        
+                    #loop over all orbital baisis functions twice
+                    for b1 in range(basisNumber):
+                        for b2 in range(basisNumber):
+                            
+                            #loop over all primative guassians in basis twice
+                            for p1 in range(len(basis["alphas"][b1])):
+                                for p2 in range(len(basis["alphas"][b2])):
+        
+                                    #init integral constants
+                                    C = self.constants(basis, b1, b2, p1, p2)
+                                   
+                                    RPA2 = [ ((system["Z"][x] - C["P"][x]) ** 2) for x in range(len(system["Z"])) ] 
+                                    RPA2 = sum(RPA2) * C["p"]
+        
+                                    #calculate coulomb nuclear attraction
+                                    V[b1][b2] += -2.0 * nucli * self.boys(0, RPA2) * C["N12"] * C["c12"]   
+        
+                return V
 
-		#init empty overlap matrix
-		V = np.zeros([basisNumber, basisNumber])
-		
-		#iterate over atom basis twice
-		for b1 in range(basisNumber):
-			for b2 in range(basisNumber):
-				
-				#iterate over primatives used in basis twice	
-				for atom in range(len(system["Z"])):
-					for p1 in range(len(basis["alphas"][b1])):
-						for p2 in range(len(basis["alphas"][b2])):
-	
-							#get integral constants
-							C = self.constants(basis, b1, b2, p1, p2)						
-							t = C["q"]*C["Q"]
-							
-							P = [ ((C["a1"]*C["mu1"][x] + C["a2"]*C["mu2"][x])/C["p"]) for x in range(3)]
-							
-																			     
-							 
-							RPA2 = sum((np.asarray(system["R"][atom]) - np.asarray(P))) * C["p"]
-			
-							term1 = (2*math.pi)/C["p"] 
-							if(RPA2 == 0):
-								boys = 0
-							else:
-								print(RPA2)
-								boys = (advMath.gamma(0.5) * advMath.gammainc(0, 0.5)) / (2 * (RPA2**(0.5)))
-								print("GGGGGGGGG")
-								print(advMath.gammainc(RPA2,0.5))	
-					
-							V[b1][b2] = -system["Z"][atom] * term1 * boys * C["c12"]											
-	
-			
-		return V
+#################################
+        def buildElectronRepulsion(self, basis):
+            #builds electron repulsion matrix
+            #https://youtu.be/vlNxTTF1kK4?t=1m25s
+        
+            #number of basis functions used in total
+            basisNumber = len(basis["alphas"])
+        
+            #init electron repulsion matrix
+            G = np.zeros( [basisNumber, basisNumber, basisNumber, basisNumber] )
+        
+            #loop over basis functions twice
+            for b1 in range(basisNumber):
+                for b2 in range(basisNumber):
+                    
+                    #loop over primative guassians twice
+                    for p1 in range(len(basis["alphas"][b1])):
+                        for p2 in range(len(basis["alphas"][b2])):
+        
+                            #init integral contants 
+                            C = self.constants(basis, b1, b2, p1, p2)
+        
+                            #amplitude of two basis 
+                            A12 = C["overlap"] * C["c12"] * C["N12"]
+        
+                            #loop over basis functions twice more
+                            for b3 in range(basisNumber):
+                                for b4 in range(basisNumber):
+        
+                                    #loop over primative guassians twice more
+                                    for p3 in range(len(basis["alphas"][b3])):
+                                        print("BBBBBBBBBBb")
+                                        print(basisNumber)
+                                        for p4 in range(len(basis["alphas"][b4])):
+                                            
+                                            #init 2nd integral constants
+                                            C2 = self.constants(basis, b3, b4, p3, p4)
+        
+                                            #amplitude of 2nd level basis
+                                            A34 = C2["overlap"] * C2["c12"] * C2["N12"]
+                                            
+                                            p = C["p"] + C2["p"]
+                                            m = C["p"] * C2["p"]
+        
+                                            R = 0.0
+                                            for dim in range(3):
+                                                R += (C["P"][dim] - C["P"][dim]) ** 2
+        
+                                            alpha =  m / p
+                                                                        
+                                            const = (2.0 * ( math.pi ** 2.5 )) / ( m * math.sqrt(p))  
+        
+                                            G[b1][b2][b3][b4] += A12 * A34 * self.boys(0, alpha * R) * const  
+            return G
+                                
