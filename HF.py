@@ -55,4 +55,7 @@ T = Integrals.buildKE(basis)
 #nuclear electron coloumb attraction 
 V = Integrals.buildNuclearAttraction(basis, system)
 
-print(V)
+#electron electron repulsion matrix
+G = Integrals.buildElectronRepulsion(basis)
+
+print(G)

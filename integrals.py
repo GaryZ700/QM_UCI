@@ -180,3 +180,59 @@ class Integrals:
                                     V[b1][b2] += -2.0 * nucli * self.boys(0, RPA2) * C["N12"] * C["c12"]   
         
                 return V
+
+#################################
+        def buildElectronRepulsion(self, basis):
+            #builds electron repulsion matrix
+            #https://youtu.be/vlNxTTF1kK4?t=1m25s
+        
+            #number of basis functions used in total
+            basisNumber = len(basis["alphas"])
+        
+            #init electron repulsion matrix
+            G = np.zeros( [basisNumber, basisNumber, basisNumber, basisNumber] )
+        
+            #loop over basis functions twice
+            for b1 in range(basisNumber):
+                for b2 in range(basisNumber):
+                    
+                    #loop over primative guassians twice
+                    for p1 in range(len(basis["alphas"][b1])):
+                        for p2 in range(len(basis["alphas"][b2])):
+        
+                            #init integral contants 
+                            C = self.constants(basis, b1, b2, p1, p2)
+        
+                            #amplitude of two basis 
+                            A12 = C["overlap"] * C["c12"] * C["N12"]
+        
+                            #loop over basis functions twice more
+                            for b3 in range(basisNumber):
+                                for b4 in range(basisNumber):
+        
+                                    #loop over primative guassians twice more
+                                    for p3 in range(len(basis["alphas"][b3])):
+                                        print("BBBBBBBBBBb")
+                                        print(basisNumber)
+                                        for p4 in range(len(basis["alphas"][b4])):
+                                            
+                                            #init 2nd integral constants
+                                            C2 = self.constants(basis, b3, b4, p3, p4)
+        
+                                            #amplitude of 2nd level basis
+                                            A34 = C2["overlap"] * C2["c12"] * C2["N12"]
+                                            
+                                            p = C["p"] + C2["p"]
+                                            m = C["p"] * C2["p"]
+        
+                                            R = 0.0
+                                            for dim in range(3):
+                                                R += (C["P"][dim] - C["P"][dim]) ** 2
+        
+                                            alpha =  m / p
+                                                                        
+                                            const = (2.0 * ( math.pi ** 2.5 )) / ( m * math.sqrt(p))  
+        
+                                            G[b1][b2][b3][b4] += A12 * A34 * self.boys(0, alpha * R) * const  
+            return G
+                                
