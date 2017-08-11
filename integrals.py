@@ -47,7 +47,7 @@ class Integrals:
                     C["overlap"] *= math.exp(-C["q"]*C["Q"][dim])#[ math.exp(-C["q"]*C["Q"][dim]) for dim in range(3) ] 
 
                 #calculate 3D analytical integral
-                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3.0
+                C["integrand"] = math.sqrt( math.pi / (C["p"]) ) ** 3
                
                 #calculate product of contraction coeffs and normalization constants
                 C["c12"] = C["c1"] * C["c2"]
@@ -76,7 +76,7 @@ class Integrals:
                 return (advMath.gamma(n) * advMath.gammainc(x, n)) / (2.0*xP)
         
 #################################
-	def buildKE(self, basis):
+	def buildKE(self, basis, S):
 		#builds KE matrix T
 
 		#number that represents the number of basis functions being used for the system
@@ -102,12 +102,12 @@ class Integrals:
 
 						#https://youtu.be/RHkWFlIhNHo?t=2m4s
                                                 #https://youtu.be/W6zfFHE5zIE?t=9m27s
-                                                term1 = 3.0 * C["overlap"] * C["a2"] * C["c12"]
+                                                term1 = 3.0 * C["a2"] * C["c12"] * S[b1][b2]
                                                 
                                                 d = [ ((C["P"][dim] - C["r2"][dim]) ** 2) + (1.0/(2.0*C["p"])) for dim in range(3) ]
 					        a2 = -2.0 * (C["a2"]**2)             
 
-                                                term2 = [ a2 * d[dim] * C["overlap"] * C["c12"] for dim in range(3) ]
+                                                term2 = [ a2 * d[dim] * S[b1][b2] * C["c12"] for dim in range(3) ]
                         
                                                 T[b1][b2] += term1 
                                                 for dim in range(3):
@@ -174,12 +174,14 @@ class Integrals:
         
                                     #init integral constants
                                     C = self.constants(basis, b1, b2, p1, p2)
-                                   
-                                    RPA2 = [ ((system["Z"][x] - C["P"][x]) ** 2) for x in range(len(system["Z"])) ] 
+                                    
+                                    term1 = -2.0 * nucli * ( math.pi / C["p"] )
+
+                                    RPA2 = [ ((system["R"][nucli][x] - C["P"][x]) ** 2) for x in range(len(system["Z"])) ] 
                                     RPA2 = sum(RPA2) * C["p"]
-        
+ 
                                     #calculate coulomb nuclear attraction
-                                    V[b1][b2] += -2.0 * nucli * self.boys(0, RPA2) * C["N12"] * C["c12"]   
+                                    V[b1][b2] += term1 * self.boys(0, RPA2) * C["N12"] * C["overlap"] * C["c12"]  
         
                 return V
 
